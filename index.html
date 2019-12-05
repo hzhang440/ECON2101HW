@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 15px sans-serif;
+}
+
+.label {
+  font-weight: bold;
+}
+
+.tile {
+  shape-rendering: crispEdges;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;}
+
+</style>
+<body>
+	<div id="container" style="width: 70%; height:60%;">
+      <canvas id="canvas"></canvas>
+   </div>
+   
+
+<script src="d3.js"></script>
+<script src = "Chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://rawgit.com/chartjs/chartjs-plugin-annotation/master/chartjs-plugin-annotation.js"></script>
+<script>
+
+var margin = {top: 20, right: 90, bottom: 30, left: 50},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+
+
+ d3.csv("Dis.csv",function(data){
+
+
+     var optionbox = [1,2,3,4,5,6,7,8,9,10,11,12];
+
+
+     var yearb = d3.select('body').append('text').text("Choose a HW: ");
+      
+      var select = d3.select('body')
+                      .append('select')
+                      .attr('class','select')
+                      .on('change',onchange)
+        //I have no idea why it's in the middle.
+                      
+
+         var options = select.selectAll('option')
+                   .data(optionbox).enter()
+                   .append('option')
+                   .text(function (d) { return d; });
+
+         var bins=[];
+         var grade=[];
+
+         
+         var ctx = document.getElementById('canvas').getContext('2d');
+         var myBar = new Chart(ctx, {
+            type: 'bar',
+            data: {
+         labels:bins,
+         datasets: [
+         {
+          label: "count",
+          //backgroundColor:
+          data: grade,
+          hoverBorderColor:"#1f77b4",
+          hoverBackgroundColor:"steelblue",
+          hoverBorderWidth:8
+        }, {data:grade,
+        	type:'line'}
+      ]
+    },
+               
+               options:{plugins: {
+               	annotation: {
+        annotations: [{
+            type: 'line',
+            mode: 'vertical',
+            scaleID: 'x-axis-0',
+            borderColor: 'black',
+            borderWidth: 3
+        }],
+        drawTime: "afterDraw" // (default)
+    }},
+               	responsive: true,
+               	title: {
+            	display: true,
+            	text: 'Homework Grade distribution'
+        },
+        scales: {
+  xAxes: [{
+    display: true,
+    ticks: {
+        autoSkip: false,
+        labelOffset: 45,
+
+    }
+  }],
+  yAxes: [{
+    ticks: {
+      beginAtZero:true
+    }
+  }]
+}
+
+               }});
+
+      onchange();
+
+       function onchange(){
+
+        selectValue = d3.select('select').property('value')
+        index = selectValue.concat("bin");
+        index2 = selectValue.concat("count");
+        selectValue3 = selectValue-1
+        selectValue2 = selectValue*2-2+1;
+        grade = data.map(function(d){return +d[index2];});
+      
+        bins = data.map(function(d){return d[index];});
+
+        var indexmean = selectValue.concat("m");
+ 		var mean2 = data.map(function(d){return +d[indexmean]});
+		var mean1 ="Mean: ";
+		var mean3 = mean1.concat(mean2[0]);
+		var indexstd = selectValue.concat("std");
+        var std2 = data.map(function(d){return +d[indexstd]});
+        var std1 = "St.D: ";
+        var std3 = std1.concat(std2[0]);
+
+        var title1 = "Homework Grade distribution";
+        title2=[];
+        title2.push(title1);
+        title3 = mean3.concat("          ",std3);
+        title2.push(title3);
+
+ 
+
+        console.log(grade);
+        console.log(bins);
+
+        if (window.myBar != undefined)
+{
+    window.myBar.destroy();
+}
+window.myBar = new Chart(ctx, {
+            type: 'bar',
+            data: {
+         labels:bins,
+         datasets: [
+         {
+          label: "count",
+          //backgroundColor:
+          data: grade,
+          hoverBorderColor:"#1f77b4",
+          hoverBackgroundColor:"steelblue",
+          hoverBorderWidth:8
+        },{data:grade,
+        	type:'line',
+        	fill:false,
+        	borderColor: "#9467bd",
+        	borderWidth:4,
+        	label:"distribution curve"
+             }
+      ]
+    },
+               
+               options:{
+               	plugins: {
+               	annotation: {
+        annotations: [{
+            type: 'line',
+            mode: 'vertical',
+            scaleID: 'x-axis-0',
+            value: mean2[0],
+            borderColor: 'black',
+            borderWidth: 3
+        }],
+        drawTime: "afterDraw" // (default)
+    }},
+               	responsive: true,
+               	title: {
+            	display: true,
+            	text: title2
+        },
+        scales: {
+  xAxes: [{
+    display: true,
+    ticks: {
+        autoSkip: false,
+        labelOffset: 45,
+
+    }
+  }],
+  yAxes: [{
+    ticks: {
+      beginAtZero:true
+    }
+  }]
+},
+
+
+               }});
+
+ 
+
+        
+
+
+
+      
+        
+    }});
+
+
+        
+
+
+
+</script>
+
